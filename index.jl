@@ -1,14 +1,18 @@
-# # Solve Large-Scale Problem with DCISolver
+# # Solve a PDE-constrained optimization problem with JSO-compliant solvers
 
-# In this tutorial we use `dci` to solve a large-scale optimization problem resulting from the discretization of a PDE-constrained optimization problem and compare the solve with Ipopt.
+# In this tutorial you will learn how to use JSO-compliant solvers to solve a PDE-constrained optimization problem discretized with PDENLPModels.
+
+# \toc
 
 # ## Problem Statement
+
+# We refer to [Gridap.jl](https://github.com/gridap/Gridap.jl) for more details on modeling PDEs and [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl) for PDE-constrained optimization problems.
 
 # Let Ω = (-1,1)², we solve the following distributed Poisson control problem with Dirichlet boundary:
 # ```math
 #    \left\lbrace
 #    \begin{aligned}
-#       \min_{y \in H^1_0, u \in H^1} \quad &  \frac{1}{2} \int_\Omega |y(x) - y_d(x)|^2dx + \frac{\alpha}{2} \int_\Omega |u|^2dx \\
+#       \min_{y \in H^1_0, u \in H^1} \quad &  \frac{1}{2} \int_\Omega |y(x) - yd(x)|^2dx + \frac{\alpha}{2} \int_\Omega |u|^2dx \\
 #       \text{s.t.} & -\Delta y = h + u, \quad x \in \Omega, \\
 #                   & y = 0, \quad x \in \partial \Omega,
 #    \end{aligned}
@@ -16,8 +20,6 @@
 # ```
 # where yd(x) = -x₁² and α = 1e-2.
 # The force term is h(x₁, x₂) = - sin(ω x₁)sin(ω x₂) with  ω = π - 1/8.
-
-# We refer to [Gridap.jl](https://github.com/gridap/Gridap.jl) for more details on modeling PDEs and [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl) for PDE-constrained optimization problems.
 
 using Gridap, PDENLPModels
 
@@ -63,7 +65,7 @@ npde = Gridap.FESpaces.num_free_dofs(Ypde)
 ncon = Gridap.FESpaces.num_free_dofs(Ycon)
 x0 = zeros(npde + ncon);
 
-# Overall, we built a GridapPDENLPModel, which implements the [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl) API.
+# Overall, we built a GridapPDENLPModel, which implements the [NLPModel](https://juliasmoothoptimizers.github.io/NLPModels.jl/stable/) API.
 nlp = GridapPDENLPModel(x0, f, trian, Ypde, Ycon, Xpde, Xcon, op, name = "Control elastic membrane")
 
 (nlp.meta.nvar, nlp.meta.ncon)
@@ -71,10 +73,11 @@ nlp = GridapPDENLPModel(x0, f, trian, Ypde, Ycon, Xpde, Xcon, op, name = "Contro
 # ## Find a Feasible Point
 
 # Before solving the previously defined model, we will first improve our initial guess.
+# The first step is to create a nonlinear least-squares whose residual is the equality-constraint of the optimization problem.
 # We use `FeasibilityResidual` from [NLPModelsModifiers.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsModifiers.jl) to convert the NLPModel as an NLSModel.
-# Then, using `trunk`, a solver for least-squares problems implemented in [JSOSolvers.jl](https://github.com/JuliaSmoothOptimizers/JSOSolvers.jl), we find An
+# Then, using `trunk`, a solver for least-squares problems implemented in [JSOSolvers.jl](https://github.com/JuliaSmoothOptimizers/JSOSolvers.jl), we find an
 # improved guess which is close to being feasible for our large-scale problem.
-# By default, a JSO-compliant solver such as `trunk` (the same applies to `dci`) uses by default `nlp.meta.x0` as an initial guess.
+# By default, JSO-compliant solvers use `nlp.meta.x0` as an initial guess.
 using JSOSolvers, NLPModelsModifiers
 
 nls = FeasibilityResidual(nlp)
@@ -87,7 +90,7 @@ norm(cons(nlp, stats_trunk.solution))
 
 # ## Solve the Problem
 
-# Finally, we are ready to solve the PDE-constrained optimization problem with a targeted tolerance of `1e-5`.
+# Finally, we are ready to solve the PDE-constrained optimization problem with a targeted tolerance of `10⁻⁵`.
 # In the following, we will use both Ipopt and DCI on our problem.
 using NLPModelsIpopt
 
@@ -112,8 +115,9 @@ stats_dci.counters
 # We now compare the two solvers with respect to the time spent,
 stats_ipopt.elapsed_time, stats_dci.elapsed_time
 
-# and also check objective value, feasibility and dual feasibility of `ipopt` and `dci`.
+# and also check objective value, feasibility, and dual feasibility of `ipopt` and `dci`.
 (stats_ipopt.objective, stats_ipopt.primal_feas, stats_ipopt.dual_feas),
 (stats_dci.objective, stats_dci.primal_feas, stats_dci.dual_feas)
 
 # Overall `DCISolver` is doing great for solving large-scale optimization problems!
+# You can try increase the problem size by changing the discretization parameter `n`.
