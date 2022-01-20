@@ -2,7 +2,7 @@
 
 using Gridap, PDENLPModels
 
-n = 20
+n = 100
 domain = (-1, 1, -1, 1)
 partition = (n, n)
 model = CartesianDiscreteModel(domain, partition)
