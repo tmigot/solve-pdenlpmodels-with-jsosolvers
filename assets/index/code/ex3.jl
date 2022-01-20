@@ -1,7 +1,10 @@
 # This file was generated, do not modify it. # hide
-using Plots
+reffe = ReferenceFE(lagrangian, Float64, 2)
+Xpde = TestFESpace(model, reffe; conformity = :H1, dirichlet_tags = "boundary")
+y0(x) = 0.0
+Ypde = TrialFESpace(Xpde, y0)
 
-x = rand(3)
-y = rand(3)
-plot(x, y)
-png(joinpath("__site/assets", "myplot")) # hide
+reffe_con = ReferenceFE(lagrangian, Float64, 1)
+Xcon = TestFESpace(model, reffe_con; conformity = :H1)
+Ycon = TrialFESpace(Xcon)
+Y = MultiFieldFESpace([Ypde, Ycon])

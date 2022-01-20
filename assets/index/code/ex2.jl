@@ -1,3 +1,5 @@
 # This file was generated, do not modify it. # hide
-using LinearAlgebra
-norm(A * x - b), norm(x .- 1)
+n = 20
+domain = (-1, 1, -1, 1)
+partition = (n, n)
+model = CartesianDiscreteModel(domain, partition)
