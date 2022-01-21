@@ -1,25 +1,24 @@
-# # Solve a PDE-constrained optimization problem with JSO-compliant solvers
+#=
+# Solve a PDE-constrained optimization problem with JSO-compliant solvers
 
-# In this tutorial you will learn how to use JSO-compliant solvers to solve a PDE-constrained optimization problem discretized with PDENLPModels.
+In this tutorial you will learn how to use JSO-compliant solvers to solve a PDE-constrained optimization problem discretized with [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl).
 
-# \toc
+\toc
 
-# ## Problem Statement
+## Problem Statement
 
-# We refer to [Gridap.jl](https://github.com/gridap/Gridap.jl) for more details on modeling PDEs and [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl) for PDE-constrained optimization problems.
+In this first part, we define a distributed Poisson control problem  with Dirichlet boundary conditions which is then automatically discretized.
+We refer to [Gridap.jl](https://github.com/gridap/Gridap.jl) for more details on modeling PDEs and [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl) for PDE-constrained optimization problems.
 
-# Let Ω = (-1,1)², we solve the following distributed Poisson control problem with Dirichlet boundary:
-# ```math
-#    \left\lbrace
-#    \begin{aligned}
-#       \min_{y \in H^1_0, u \in H^1} \quad &  \frac{1}{2} \int_\Omega |y(x) - yd(x)|^2dx + \frac{\alpha}{2} \int_\Omega |u|^2dx \\
-#       \text{s.t.} & -\Delta y = h + u, \quad x \in \Omega, \\
-#                   & y = 0, \quad x \in \partial \Omega,
-#    \end{aligned}
-#    \right.
-# ```
-# where yd(x) = -x₁² and α = 1e-2.
-# The force term is h(x₁, x₂) = - sin(ω x₁)sin(ω x₂) with  ω = π - 1/8.
+Let Ω = (-1,1)², we solve the following problem:
+\begin{aligned}
+  \min_{y \in H^1_0, u \in H^1} \quad &  \frac{1}{2} \int_\Omega |y(x) - yd(x)|^2dx + \frac{\alpha}{2} \int_\Omega |u|^2dx \\
+  \text{s.t.} & -\Delta y = h + u, \quad x \in \Omega, \\
+              & y = 0, \quad x \in \partial \Omega,
+\end{aligned}
+where yd(x) = -x₁² and α = 1e-2.
+The force term is h(x₁, x₂) = - sin(ω x₁)sin(ω x₂) with  ω = π - 1/8.
+=#
 
 using Gridap, PDENLPModels
 
@@ -68,16 +67,21 @@ x0 = zeros(npde + ncon);
 # Overall, we built a GridapPDENLPModel, which implements the [NLPModel](https://juliasmoothoptimizers.github.io/NLPModels.jl/stable/) API.
 nlp = GridapPDENLPModel(x0, f, trian, Ypde, Ycon, Xpde, Xcon, op, name = "Control elastic membrane")
 
-(nlp.meta.nvar, nlp.meta.ncon)
+using NLPModels
 
+(get_nvar(nlp), get_ncon(nlp))
+
+#=
 # ## Find a Feasible Point
 
-# Before solving the previously defined model, we will first improve our initial guess.
-# The first step is to create a nonlinear least-squares whose residual is the equality-constraint of the optimization problem.
-# We use `FeasibilityResidual` from [NLPModelsModifiers.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsModifiers.jl) to convert the NLPModel as an NLSModel.
-# Then, using `trunk`, a solver for least-squares problems implemented in [JSOSolvers.jl](https://github.com/JuliaSmoothOptimizers/JSOSolvers.jl), we find an
-# improved guess which is close to being feasible for our large-scale problem.
-# By default, JSO-compliant solvers use `nlp.meta.x0` as an initial guess.
+Before solving the previously defined model, we will first improve our initial guess.
+The first step is to create a nonlinear least-squares whose residual is the equality-constraint of the optimization problem.
+We use `FeasibilityResidual` from [NLPModelsModifiers.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsModifiers.jl) to convert the NLPModel as an NLSModel.
+Then, using `trunk`, a matrix-free solver for least-squares problems implemented in [JSOSolvers.jl](https://github.com/JuliaSmoothOptimizers/JSOSolvers.jl), we find an
+improved guess which is close to being feasible for our large-scale problem.
+By default, JSO-compliant solvers use `nlp.meta.x0` as an initial guess.
+=#
+
 using JSOSolvers, NLPModelsModifiers
 
 nls = FeasibilityResidual(nlp)
@@ -94,6 +98,7 @@ norm(cons(nlp, stats_trunk.solution))
 # In the following, we will use both Ipopt and DCI on our problem.
 using NLPModelsIpopt
 
+# Set `print_level = 0` to avoid printing detailed iteration information.
 stats_ipopt = ipopt(nlp, x0 = stats_trunk.solution, tol = 1e-5, print_level = 0)
 
 # The problem was successfully solved, and we can extract the function evaluations from the stats.
@@ -102,6 +107,7 @@ stats_ipopt.counters
 # Reinitialize the counters before re-solving.
 reset!(nlp);
 
+# Most JSO-compliant solvers are using logger for printing iteration information. 
 # `NullLogger` avoids printing iteration information.
 using DCISolver, Logging
 
