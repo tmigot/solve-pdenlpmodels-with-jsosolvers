@@ -11,11 +11,13 @@ In this first part, we define a distributed Poisson control problem  with Dirich
 We refer to [Gridap.jl](https://github.com/gridap/Gridap.jl) for more details on modeling PDEs and [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl) for PDE-constrained optimization problems.
 
 Let Ω = (-1,1)², we solve the following problem:
+
 \begin{aligned}
-  \min_{y \in H^1_0, u \in H^1} \quad &  \frac{1}{2} \int_\Omega |y(x) - yd(x)|^2dx + \frac{\alpha}{2} \int_\Omega |u|^2dx \\
-  \text{s.t.} & -\Delta y = h + u, \quad x \in \Omega, \\
-              & y = 0, \quad x \in \partial \Omega,
+\text{min}_{y \in H^1_0, u \in H^1} \quad &  \frac{1}{2} \int_\Omega |y(x) - yd(x)|^2dx + \frac{\alpha}{2} \int_\Omega |u|^2dx \\
+\text{s.t.} & -\Delta y = h + u, \quad x \in \Omega, \\
+& y = 0, \quad x \in \partial \Omega,
 \end{aligned}
+
 where yd(x) = -x₁² and α = 1e-2.
 The force term is h(x₁, x₂) = - sin(ω x₁)sin(ω x₂) with  ω = π - 1/8.
 
@@ -26,7 +28,7 @@ using Gridap, PDENLPModels
 Definition of the domain and discretization
 
 ```julia:ex2
-n = 100
+n = 3
 domain = (-1, 1, -1, 1)
 partition = (n, n)
 model = CartesianDiscreteModel(domain, partition)
