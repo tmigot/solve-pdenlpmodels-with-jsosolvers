@@ -92,6 +92,8 @@ Overall, we built a GridapPDENLPModel, which implements the [NLPModel](https://j
 ```julia:ex8
 nlp = GridapPDENLPModel(x0, f, trian, Ypde, Ycon, Xpde, Xcon, op, name = "Control elastic membrane")
 
+using NLPModels
+
 (get_nvar(nlp), get_ncon(nlp))
 ```
 
