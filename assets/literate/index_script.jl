@@ -2,7 +2,7 @@
 
 using Gridap, PDENLPModels
 
-n = 100
+n = 5
 domain = (-1, 1, -1, 1)
 partition = (n, n)
 model = CartesianDiscreteModel(domain, partition)
@@ -40,7 +40,7 @@ x0 = zeros(npde + ncon);
 
 nlp = GridapPDENLPModel(x0, f, trian, Ypde, Ycon, Xpde, Xcon, op, name = "Control elastic membrane")
 
-(nlp.meta.nvar, nlp.meta.ncon)
+(get_nvar(nlp), get_ncon(nlp))
 
 using JSOSolvers, NLPModelsModifiers
 

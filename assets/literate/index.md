@@ -1,15 +1,16 @@
 <!--This file was generated, do not modify it.-->
 # Solve a PDE-constrained optimization problem with JSO-compliant solvers
 
-In this tutorial you will learn how to use JSO-compliant solvers to solve a PDE-constrained optimization problem discretized with PDENLPModels.
+In this tutorial you will learn how to use JSO-compliant solvers to solve a PDE-constrained optimization problem discretized with [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl).
 
 \toc
 
 ## Problem Statement
 
+In this first part, we define a distributed Poisson control problem  with Dirichlet boundary conditions which is then automatically discretized.
 We refer to [Gridap.jl](https://github.com/gridap/Gridap.jl) for more details on modeling PDEs and [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl) for PDE-constrained optimization problems.
 
-Let Ω = (-1,1)², we solve the following distributed Poisson control problem with Dirichlet boundary:
+Let Ω = (-1,1)², we solve the following problem:
 ```math
    \left\lbrace
    \begin{aligned}
@@ -29,7 +30,7 @@ using Gridap, PDENLPModels
 Definition of the domain and discretization
 
 ```julia:ex2
-n = 100
+n = 5
 domain = (-1, 1, -1, 1)
 partition = (n, n)
 model = CartesianDiscreteModel(domain, partition)
@@ -91,7 +92,7 @@ Overall, we built a GridapPDENLPModel, which implements the [NLPModel](https://j
 ```julia:ex8
 nlp = GridapPDENLPModel(x0, f, trian, Ypde, Ycon, Xpde, Xcon, op, name = "Control elastic membrane")
 
-(nlp.meta.nvar, nlp.meta.ncon)
+(get_nvar(nlp), get_ncon(nlp))
 ```
 
 ## Find a Feasible Point
@@ -99,7 +100,7 @@ nlp = GridapPDENLPModel(x0, f, trian, Ypde, Ycon, Xpde, Xcon, op, name = "Contro
 Before solving the previously defined model, we will first improve our initial guess.
 The first step is to create a nonlinear least-squares whose residual is the equality-constraint of the optimization problem.
 We use `FeasibilityResidual` from [NLPModelsModifiers.jl](https://github.com/JuliaSmoothOptimizers/NLPModelsModifiers.jl) to convert the NLPModel as an NLSModel.
-Then, using `trunk`, a solver for least-squares problems implemented in [JSOSolvers.jl](https://github.com/JuliaSmoothOptimizers/JSOSolvers.jl), we find an
+Then, using `trunk`, a matrix-free solver for least-squares problems implemented in [JSOSolvers.jl](https://github.com/JuliaSmoothOptimizers/JSOSolvers.jl), we find an
 improved guess which is close to being feasible for our large-scale problem.
 By default, JSO-compliant solvers use `nlp.meta.x0` as an initial guess.
 
@@ -125,25 +126,30 @@ In the following, we will use both Ipopt and DCI on our problem.
 
 ```julia:ex11
 using NLPModelsIpopt
+```
 
+Set `print_level = 0` to avoid printing detailed iteration information.
+
+```julia:ex12
 stats_ipopt = ipopt(nlp, x0 = stats_trunk.solution, tol = 1e-5, print_level = 0)
 ```
 
 The problem was successfully solved, and we can extract the function evaluations from the stats.
 
-```julia:ex12
+```julia:ex13
 stats_ipopt.counters
 ```
 
 Reinitialize the counters before re-solving.
 
-```julia:ex13
+```julia:ex14
 reset!(nlp);
 ```
 
+Most JSO-compliant solvers are using logger for printing iteration information.
 `NullLogger` avoids printing iteration information.
 
-```julia:ex14
+```julia:ex15
 using DCISolver, Logging
 
 stats_dci = with_logger(NullLogger()) do
@@ -153,19 +159,19 @@ end
 
 The problem was successfully solved, and we can extract the function evaluations from the stats.
 
-```julia:ex15
+```julia:ex16
 stats_dci.counters
 ```
 
 We now compare the two solvers with respect to the time spent,
 
-```julia:ex16
+```julia:ex17
 stats_ipopt.elapsed_time, stats_dci.elapsed_time
 ```
 
 and also check objective value, feasibility, and dual feasibility of `ipopt` and `dci`.
 
-```julia:ex17
+```julia:ex18
 (stats_ipopt.objective, stats_ipopt.primal_feas, stats_ipopt.dual_feas),
 (stats_dci.objective, stats_dci.primal_feas, stats_dci.dual_feas)
 ```
