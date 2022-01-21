@@ -11,24 +11,13 @@ In this first part, we define a distributed Poisson control problem  with Dirich
 We refer to [Gridap.jl](https://github.com/gridap/Gridap.jl) for more details on modeling PDEs and [PDENLPModels.jl](https://github.com/JuliaSmoothOptimizers/PDENLPModels.jl) for PDE-constrained optimization problems.
 
 Let Ω = (-1,1)², we solve the following problem:
-
 \begin{aligned}
-\text{min}_{y \in H^1_0, u \in H^1} \quad &  \frac{1}{2} \int_\Omega |y(x) - yd(x)|^2dx + \frac{\alpha}{2} \int_\Omega |u|^2dx \\
-\text{s.t.} & -\Delta y = h + u, \quad x \in \Omega, \\
-& y = 0, \quad x \in \partial \Omega,
+  \min_{y \in H^1_0, u \in H^1} \quad &  \frac{1}{2} \int_\Omega |y(x) - yd(x)|^2dx + \frac{\alpha}{2} \int_\Omega |u|^2dx \\
+  \text{s.t.} & -\Delta y = h + u, \quad x \in \Omega, \\
+              & y = 0, \quad x \in \partial \Omega,
 \end{aligned}
-
 where yd(x) = -x₁² and α = 1e-2.
 The force term is h(x₁, x₂) = - sin(ω x₁)sin(ω x₂) with  ω = π - 1/8.
-
-To solve an optimization problem with Ipopt, the first thing to do is define your problem.
-In this example, let's assume we want to solve the following problem:
-\begin{aligned}
-\text{min}_x \quad & (x_1 - 1)^2 + 4 (x_2 - x_1)^2 \\
-\text{s.to} \quad & x_1^2 + x_2^2 \leq 1 \\
-& x_1 \leq 0.5 \\
-& 0.25 \leq x_2 \leq 0.75
-\end{aligned}
 
 ```julia:ex1
 using Gridap, PDENLPModels
@@ -37,7 +26,7 @@ using Gridap, PDENLPModels
 Definition of the domain and discretization
 
 ```julia:ex2
-n = 3
+n = 100
 domain = (-1, 1, -1, 1)
 partition = (n, n)
 model = CartesianDiscreteModel(domain, partition)
