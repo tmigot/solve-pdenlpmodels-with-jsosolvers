@@ -6,7 +6,7 @@
    \end&#123;aligned&#125;
    \right.</code></pre> <p>where yd&#40;x&#41; &#61; -x₁² and α &#61; 1e-2. The force term is h&#40;x₁, x₂&#41; &#61; - sin&#40;ω x₁&#41;sin&#40;ω x₂&#41; with ω &#61; π - 1/8.</p> <pre><code class=language-julia >using Gridap, PDENLPModels</code></pre>
 <p>Definition of the domain and discretization</p>
-<pre><code class=language-julia >n &#61; 5
+<pre><code class=language-julia >n &#61; 100
 domain &#61; &#40;-1, 1, -1, 1&#41;
 partition &#61; &#40;n, n&#41;
 model &#61; CartesianDiscreteModel&#40;domain, partition&#41;</code></pre><pre><code class="plaintext code-output">CartesianDiscreteModel()</code></pre>
@@ -46,7 +46,7 @@ x0 &#61; zeros&#40;npde &#43; ncon&#41;;</code></pre>
 
 using NLPModels
 
-&#40;get_nvar&#40;nlp&#41;, get_ncon&#40;nlp&#41;&#41;</code></pre><pre><code class="plaintext code-output">(117, 81)</code></pre>
+&#40;get_nvar&#40;nlp&#41;, get_ncon&#40;nlp&#41;&#41;</code></pre><pre><code class="plaintext code-output">(49802, 39601)</code></pre>
 <h2 id=find_a_feasible_point ><a href="#find_a_feasible_point" class=header-anchor >Find a Feasible Point</a></h2>
 <p>Before solving the previously defined model, we will first improve our initial guess. The first step is to create a nonlinear least-squares whose residual is the equality-constraint of the optimization problem. We use <code>FeasibilityResidual</code> from <a href="https://github.com/JuliaSmoothOptimizers/NLPModelsModifiers.jl">NLPModelsModifiers.jl</a> to convert the NLPModel as an NLSModel. Then, using <code>trunk</code>, a matrix-free solver for least-squares problems implemented in <a href="https://github.com/JuliaSmoothOptimizers/JSOSolvers.jl">JSOSolvers.jl</a>, we find an improved guess which is close to being feasible for our large-scale problem. By default, JSO-compliant solvers use <code>nlp.meta.x0</code> as an initial guess.</p>
 <pre><code class=language-julia >using JSOSolvers, NLPModelsModifiers
@@ -54,7 +54,7 @@ using NLPModels
 nls &#61; FeasibilityResidual&#40;nlp&#41;
 stats_trunk &#61; trunk&#40;nls&#41;</code></pre><pre><code class="plaintext code-output">"Execution stats: first-order stationary"</code></pre>
 <p>We check the solution from the stats returned by <code>trunk</code>:</p>
-<pre><code class=language-julia >norm&#40;cons&#40;nlp, stats_trunk.solution&#41;&#41;</code></pre><pre><code class="plaintext code-output">4.241132173418332e-16</code></pre>
+<pre><code class=language-julia >norm&#40;cons&#40;nlp, stats_trunk.solution&#41;&#41;</code></pre><pre><code class="plaintext code-output">6.399820848860692e-5</code></pre>
 <p>We will use the solution found to initialize our solvers.</p>
 <h2 id=solve_the_problem ><a href="#solve_the_problem" class=header-anchor >Solve the Problem</a></h2>
 <p>Finally, we are ready to solve the PDE-constrained optimization problem with a targeted tolerance of <code>10⁻⁵</code>. In the following, we will use both Ipopt and DCI on our problem.</p>
@@ -70,9 +70,9 @@ This program contains Ipopt, a library for large-scale nonlinear optimization.
 "Execution stats: first-order stationary"</code></pre>
 <p>The problem was successfully solved, and we can extract the function evaluations from the stats.</p>
 <pre><code class=language-julia >stats_ipopt.counters</code></pre><pre><code class="plaintext code-output">  Counters:
-             obj: ████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 6                 grad: █████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 7                 cons: ███████████████⋅⋅⋅⋅⋅ 12    
-            jcon: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: █████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 7     
-           jprod: ██████████████⋅⋅⋅⋅⋅⋅ 11              jtprod: ████████████████████ 16                hess: ███████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 5     
+             obj: ████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 11                grad: █████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 12                cons: ████████████████⋅⋅⋅⋅ 22    
+            jcon: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: █████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 12    
+           jprod: █████████████⋅⋅⋅⋅⋅⋅⋅ 18              jtprod: ████████████████████ 28                hess: ████████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 10    
            hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jhess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
         residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0         jac_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       jprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
  jtprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0        hess_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       jhess_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
@@ -88,19 +88,19 @@ stats_dci &#61; with_logger&#40;NullLogger&#40;&#41;&#41; do
 end</code></pre><pre><code class="plaintext code-output">"Execution stats: first-order stationary"</code></pre>
 <p>The problem was successfully solved, and we can extract the function evaluations from the stats.</p>
 <pre><code class=language-julia >stats_dci.counters</code></pre><pre><code class="plaintext code-output">  Counters:
-             obj: █████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 3                 grad: █████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 3                 cons: █████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 3     
-            jcon: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: ████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 2     
-           jprod: ████████████████████ 12              jtprod: ████████████████████ 12                hess: ████⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 2     
+             obj: █⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 5                 grad: █⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 5                 cons: █⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 5     
+            jcon: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: █⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 3     
+           jprod: ████████████████████ 463             jtprod: ████████████████████ 463               hess: █⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 3     
            hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jhess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
         residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0         jac_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       jprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
  jtprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0        hess_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       jhess_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
   hprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
 </code></pre>
 <p>We now compare the two solvers with respect to the time spent,</p>
-<pre><code class=language-julia >stats_ipopt.elapsed_time, stats_dci.elapsed_time</code></pre><pre><code class="plaintext code-output">(38.434, 15.190010070800781)</code></pre>
+<pre><code class=language-julia >stats_ipopt.elapsed_time, stats_dci.elapsed_time</code></pre><pre><code class="plaintext code-output">(4761.861, 128.75699591636658)</code></pre>
 <p>and also check objective value, feasibility, and dual feasibility of <code>ipopt</code> and <code>dci</code>.</p>
 <pre><code class=language-julia >&#40;stats_ipopt.objective, stats_ipopt.primal_feas, stats_ipopt.dual_feas&#41;,
-&#40;stats_dci.objective, stats_dci.primal_feas, stats_dci.dual_feas&#41;</code></pre><pre><code class="plaintext code-output">((0.005543553146345648, 1.7763568394002508e-17, 1.6077147542681306e-6), (0.0055435530605247975, 4.616157258245865e-16, 1.6184816766711853e-8))</code></pre>
+&#40;stats_dci.objective, stats_dci.primal_feas, stats_dci.dual_feas&#41;</code></pre><pre><code class="plaintext code-output">((0.005423027163231929, 1.0899082969473285e-12, 1.2838467853145909e-6), (0.005418739061887395, 5.121798821171132e-10, 1.0285931551648348e-6))</code></pre>
 <p>Overall <code>DCISolver</code> is doing great for solving large-scale optimization problems&#33; You can try increase the problem size by changing the discretization parameter <code>n</code>.</p>
 
 </div>
