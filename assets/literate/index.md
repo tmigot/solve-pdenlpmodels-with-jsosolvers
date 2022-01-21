@@ -21,6 +21,15 @@ Let Ω = (-1,1)², we solve the following problem:
 where yd(x) = -x₁² and α = 1e-2.
 The force term is h(x₁, x₂) = - sin(ω x₁)sin(ω x₂) with  ω = π - 1/8.
 
+To solve an optimization problem with Ipopt, the first thing to do is define your problem.
+In this example, let's assume we want to solve the following problem:
+\begin{aligned}
+\text{min}_x \quad & (x_1 - 1)^2 + 4 (x_2 - x_1)^2 \\
+\text{s.to} \quad & x_1^2 + x_2^2 \leq 1 \\
+& x_1 \leq 0.5 \\
+& 0.25 \leq x_2 \leq 0.75
+\end{aligned}
+
 ```julia:ex1
 using Gridap, PDENLPModels
 ```
