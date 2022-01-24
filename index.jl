@@ -22,13 +22,13 @@ The force term is $h(x_1, x_2) = - sin(\omega x_1)sin(\omega x_2)$ with  $\omega
 
 using Gridap, PDENLPModels
 
-# Definition of the domain and discretization
+# First, we define the domain and its discretization.
 n = 100
 domain = (-1, 1, -1, 1)
 partition = (n, n)
 model = CartesianDiscreteModel(domain, partition)
 
-# Definition of the FE-spaces
+# Then, we introduce the definition of the finite element spaces.
 reffe = ReferenceFE(lagrangian, Float64, 2)
 Xpde = TestFESpace(model, reffe; conformity = :H1, dirichlet_tags = "boundary")
 y0(x) = 0.0
@@ -39,19 +39,17 @@ Xcon = TestFESpace(model, reffe_con; conformity = :H1)
 Ycon = TrialFESpace(Xcon)
 Y = MultiFieldFESpace([Ypde, Ycon])
 
-# Integration machinery
+# Gridap also requires setting the integration machinery use to define next the objective function and the constraint operator.
 trian = Triangulation(model)
 degree = 1
 dΩ = Measure(trian, degree)
 
-# Objective function
 yd(x) = -x[1]^2
 α = 1e-2
 function f(y, u)
   ∫(0.5 * (yd - y) * (yd - y) + 0.5 * α * u * u) * dΩ
 end
 
-# Definition of the constraint operator
 ω = π - 1 / 8
 h(x) = -sin(ω * x[1]) * sin(ω * x[2])
 function res(y, u, v)
@@ -59,7 +57,6 @@ function res(y, u, v)
 end
 op = FEOperator(res, Y, Xpde)
 
-# Definition of the initial guess
 npde = Gridap.FESpaces.num_free_dofs(Ypde)
 ncon = Gridap.FESpaces.num_free_dofs(Ycon)
 x0 = zeros(npde + ncon);
@@ -96,6 +93,8 @@ norm(cons(nlp, stats_trunk.solution))
 
 # Finally, we are ready to solve the PDE-constrained optimization problem with a targeted tolerance of `10⁻⁵`.
 # In the following, we will use both Ipopt and DCI on our problem.
+# We refer to the tutorial [How to solve a small optimization problem with Ipopt + NLPModels](https://jso-docs.github.io/solve-an-optimization-problem-with-ipopt/)
+# for more information on `NLPModelsIpopt`.
 using NLPModelsIpopt
 
 # Set `print_level = 0` to avoid printing detailed iteration information.
