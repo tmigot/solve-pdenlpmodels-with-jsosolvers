@@ -1,1 +1,1 @@
-FEOperatorFromWeakForm()
+"Execution stats: first-order stationary"

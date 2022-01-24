@@ -23,7 +23,7 @@ The force term is $h(x_1, x_2) = - sin(\omega x_1)sin(\omega x_2)$ with  $\omega
 using Gridap, PDENLPModels
 ```
 
-Definition of the domain and discretization
+First, we define the domain and its discretization.
 
 ```julia:ex2
 n = 100
@@ -32,7 +32,7 @@ partition = (n, n)
 model = CartesianDiscreteModel(domain, partition)
 ```
 
-Definition of the FE-spaces
+Then, we introduce the definition of the finite element spaces.
 
 ```julia:ex3
 reffe = ReferenceFE(lagrangian, Float64, 2)
@@ -46,38 +46,26 @@ Ycon = TrialFESpace(Xcon)
 Y = MultiFieldFESpace([Ypde, Ycon])
 ```
 
-Integration machinery
+Gridap also requires setting the integration machinery use to define next the objective function and the constraint operator.
 
 ```julia:ex4
 trian = Triangulation(model)
 degree = 1
 dΩ = Measure(trian, degree)
-```
 
-Objective function
-
-```julia:ex5
 yd(x) = -x[1]^2
 α = 1e-2
 function f(y, u)
   ∫(0.5 * (yd - y) * (yd - y) + 0.5 * α * u * u) * dΩ
 end
-```
 
-Definition of the constraint operator
-
-```julia:ex6
 ω = π - 1 / 8
 h(x) = -sin(ω * x[1]) * sin(ω * x[2])
 function res(y, u, v)
   ∫(∇(v) ⊙ ∇(y) - v * u - v * h) * dΩ
 end
 op = FEOperator(res, Y, Xpde)
-```
 
-Definition of the initial guess
-
-```julia:ex7
 npde = Gridap.FESpaces.num_free_dofs(Ypde)
 ncon = Gridap.FESpaces.num_free_dofs(Ycon)
 x0 = zeros(npde + ncon);
@@ -85,7 +73,7 @@ x0 = zeros(npde + ncon);
 
 Overall, we built a GridapPDENLPModel, which implements the [NLPModel](https://juliasmoothoptimizers.github.io/NLPModels.jl/stable/) API.
 
-```julia:ex8
+```julia:ex5
 nlp = GridapPDENLPModel(x0, f, trian, Ypde, Ycon, Xpde, Xcon, op, name = "Control elastic membrane")
 
 using NLPModels
@@ -102,7 +90,7 @@ Then, using `trunk`, a matrix-free solver for least-squares problems implemented
 improved guess which is close to being feasible for our large-scale problem.
 By default, JSO-compliant solvers use `nlp.meta.x0` as an initial guess.
 
-```julia:ex9
+```julia:ex6
 using JSOSolvers, NLPModelsModifiers
 
 nls = FeasibilityResidual(nlp)
@@ -111,7 +99,7 @@ stats_trunk = trunk(nls)
 
 We check the solution from the stats returned by `trunk`:
 
-```julia:ex10
+```julia:ex7
 norm(cons(nlp, stats_trunk.solution))
 ```
 
@@ -121,33 +109,35 @@ We will use the solution found to initialize our solvers.
 
 Finally, we are ready to solve the PDE-constrained optimization problem with a targeted tolerance of `10⁻⁵`.
 In the following, we will use both Ipopt and DCI on our problem.
+We refer to the tutorial [How to solve a small optimization problem with Ipopt + NLPModels](https://jso-docs.github.io/solve-an-optimization-problem-with-ipopt/)
+for more information on `NLPModelsIpopt`.
 
-```julia:ex11
+```julia:ex8
 using NLPModelsIpopt
 ```
 
 Set `print_level = 0` to avoid printing detailed iteration information.
 
-```julia:ex12
+```julia:ex9
 stats_ipopt = ipopt(nlp, x0 = stats_trunk.solution, tol = 1e-5, print_level = 0)
 ```
 
 The problem was successfully solved, and we can extract the function evaluations from the stats.
 
-```julia:ex13
+```julia:ex10
 stats_ipopt.counters
 ```
 
 Reinitialize the counters before re-solving.
 
-```julia:ex14
+```julia:ex11
 reset!(nlp);
 ```
 
 Most JSO-compliant solvers are using logger for printing iteration information.
 `NullLogger` avoids printing iteration information.
 
-```julia:ex15
+```julia:ex12
 using DCISolver, Logging
 
 stats_dci = with_logger(NullLogger()) do
@@ -157,19 +147,19 @@ end
 
 The problem was successfully solved, and we can extract the function evaluations from the stats.
 
-```julia:ex16
+```julia:ex13
 stats_dci.counters
 ```
 
 We now compare the two solvers with respect to the time spent,
 
-```julia:ex17
+```julia:ex14
 stats_ipopt.elapsed_time, stats_dci.elapsed_time
 ```
 
 and also check objective value, feasibility, and dual feasibility of `ipopt` and `dci`.
 
-```julia:ex18
+```julia:ex15
 (stats_ipopt.objective, stats_ipopt.primal_feas, stats_ipopt.dual_feas),
 (stats_dci.objective, stats_dci.primal_feas, stats_dci.dual_feas)
 ```

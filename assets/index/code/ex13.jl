@@ -1,2 +1,2 @@
 # This file was generated, do not modify it. # hide
-stats_ipopt.counters
+stats_dci.counters

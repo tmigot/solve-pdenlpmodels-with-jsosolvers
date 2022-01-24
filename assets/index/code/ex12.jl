@@ -1,2 +1,6 @@
 # This file was generated, do not modify it. # hide
-stats_ipopt = ipopt(nlp, x0 = stats_trunk.solution, tol = 1e-5, print_level = 0)
+using DCISolver, Logging
+
+stats_dci = with_logger(NullLogger()) do
+  dci(nlp, stats_trunk.solution, atol = 1e-5, rtol = 0.0)
+end
