@@ -1,4 +1,4 @@
-@def title = "Solve a PDE-constrained optimization problem with JSO-compliant solvers"
+@def title = "Solve a PDE-constrained optimization problem"
 @def showall = true
 @def tags = ["solvers", "ipopt", "dcisolver", "pdenlpmodels"]
 
