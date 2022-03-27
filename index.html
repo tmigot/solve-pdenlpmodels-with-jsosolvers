@@ -95,7 +95,7 @@ end</code></pre><pre><code class="plaintext code-output">"Execution stats: first
    hess_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       jhess_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       hprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
 </code></pre>
 <p>We now compare the two solvers with respect to the time spent,</p>
-<pre><code class=language-julia >stats_ipopt.elapsed_time, stats_dci.elapsed_time</code></pre><pre><code class="plaintext code-output">(3798.967, 82.71804404258728)</code></pre>
+<pre><code class=language-julia >stats_ipopt.elapsed_time, stats_dci.elapsed_time</code></pre><pre><code class="plaintext code-output">(3641.865, 86.28686594963074)</code></pre>
 <p>and also check objective value, feasibility, and dual feasibility of <code>ipopt</code> and <code>dci</code>.</p>
 <pre><code class=language-julia >&#40;stats_ipopt.objective, stats_ipopt.primal_feas, stats_ipopt.dual_feas&#41;,
 &#40;stats_dci.objective, stats_dci.primal_feas, stats_dci.dual_feas&#41;</code></pre><pre><code class="plaintext code-output">((0.005423027163231928, 1.0899082969473285e-12, 1.2838467853145909e-6), (0.005418739061887219, 5.139217746679922e-10, 1.0285931551648166e-6))</code></pre>
@@ -176,7 +176,7 @@ end</code></pre><pre><code class="plaintext code-output">"Execution stats: first
     <footer class=footer >
       <div class="content has-text-centered is-small">
         &copy; Abel Soares Siqueira. <br>
-        Last modified: March 20, 2022.<br>
+        Last modified: March 27, 2022.<br>
         <a ckass=link  href="https://github.com/jso-docs/">jso-docs at GitHub</a>
       </div>
     </footer>
