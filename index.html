@@ -48,7 +48,7 @@ using NLPModels
 nls &#61; FeasibilityResidual&#40;nlp&#41;
 stats_trunk &#61; trunk&#40;nls&#41;</code></pre><pre><code class="plaintext code-output">"Execution stats: first-order stationary"</code></pre>
 <p>We check the solution from the stats returned by <code>trunk</code>:</p>
-<pre><code class=language-julia >norm&#40;cons&#40;nlp, stats_trunk.solution&#41;&#41;</code></pre><pre><code class="plaintext code-output">6.399820848860693e-5</code></pre>
+<pre><code class=language-julia >norm&#40;cons&#40;nlp, stats_trunk.solution&#41;&#41;</code></pre><pre><code class="plaintext code-output">6.39982084886069e-5</code></pre>
 <p>We will use the solution found to initialize our solvers.</p>
 <h2 id=solve_the_problem ><a href="#solve_the_problem" class=header-anchor >Solve the Problem</a></h2>
 <p>Finally, we are ready to solve the PDE-constrained optimization problem with a targeted tolerance of <code>10⁻⁵</code>. In the following, we will use both Ipopt and DCI on our problem. We refer to the tutorial <a href="https://jso-docs.github.io/solve-an-optimization-problem-with-ipopt/">How to solve a small optimization problem with Ipopt &#43; NLPModels</a> for more information on <code>NLPModelsIpopt</code>.</p>
@@ -95,10 +95,10 @@ end</code></pre><pre><code class="plaintext code-output">"Execution stats: first
    hess_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       jhess_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0       hprod_residual: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
 </code></pre>
 <p>We now compare the two solvers with respect to the time spent,</p>
-<pre><code class=language-julia >stats_ipopt.elapsed_time, stats_dci.elapsed_time</code></pre><pre><code class="plaintext code-output">(2681.054, 74.46748995780945)</code></pre>
+<pre><code class=language-julia >stats_ipopt.elapsed_time, stats_dci.elapsed_time</code></pre><pre><code class="plaintext code-output">(3183.053, 76.01261782646179)</code></pre>
 <p>and also check objective value, feasibility, and dual feasibility of <code>ipopt</code> and <code>dci</code>.</p>
 <pre><code class=language-julia >&#40;stats_ipopt.objective, stats_ipopt.primal_feas, stats_ipopt.dual_feas&#41;,
-&#40;stats_dci.objective, stats_dci.primal_feas, stats_dci.dual_feas&#41;</code></pre><pre><code class="plaintext code-output">((0.005423027163231929, 1.0899083413562494e-12, 1.2838467853145909e-6), (0.00541873906188705, 5.139055894893884e-10, 1.0285931551647789e-6))</code></pre>
+&#40;stats_dci.objective, stats_dci.primal_feas, stats_dci.dual_feas&#41;</code></pre><pre><code class="plaintext code-output">((0.005423027163231928, 1.0899082969473285e-12, 1.2838467853145909e-6), (0.005418739061887219, 5.139217746679922e-10, 1.0285931551648166e-6))</code></pre>
 <p>Overall <code>DCISolver</code> is doing great for solving large-scale optimization problems&#33; You can try increase the problem size by changing the discretization parameter <code>n</code>.</p>
 
 </div>
@@ -176,7 +176,7 @@ end</code></pre><pre><code class="plaintext code-output">"Execution stats: first
     <footer class=footer >
       <div class="content has-text-centered is-small">
         &copy; Abel Soares Siqueira. <br>
-        Last modified: April 03, 2022.<br>
+        Last modified: April 10, 2022.<br>
         <a ckass=link  href="https://github.com/jso-docs/">jso-docs at GitHub</a>
       </div>
     </footer>
