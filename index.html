@@ -77,7 +77,7 @@ end</code></pre><pre><code class="plaintext code-output">"Execution stats: first
 <pre><code class=language-julia >stats_dci.counters</code></pre><pre><code class="plaintext code-output">type GenericExecutionStats has no field counters
 </code></pre>
 <p>We now compare the two solvers with respect to the time spent,</p>
-<pre><code class=language-julia >stats_ipopt.elapsed_time, stats_dci.elapsed_time</code></pre><pre><code class="plaintext code-output">(3608.472, 82.672199010849)</code></pre>
+<pre><code class=language-julia >stats_ipopt.elapsed_time, stats_dci.elapsed_time</code></pre><pre><code class="plaintext code-output">(3341.57, 90.42905116081238)</code></pre>
 <p>and also check objective value, feasibility, and dual feasibility of <code>ipopt</code> and <code>dci</code>.</p>
 <pre><code class=language-julia >&#40;stats_ipopt.objective, stats_ipopt.primal_feas, stats_ipopt.dual_feas&#41;,
 &#40;stats_dci.objective, stats_dci.primal_feas, stats_dci.dual_feas&#41;</code></pre><pre><code class="plaintext code-output">((0.005423027163231929, 1.0899082969473285e-12, 1.2838467853145909e-6), (0.005418739061887699, 5.138323764128939e-10, 1.0285931551650887e-6))</code></pre>
