@@ -35,7 +35,7 @@ model = CartesianDiscreteModel(domain, partition)
 Then, we introduce the definition of the finite element spaces.
 
 ````julia:ex3
-reffe = ReferenceFE(lagrangian, Float64, 2)
+reffe = ReferenceFE(lagrangian, Float64, 1)
 Xpde = TestFESpace(model, reffe; conformity = :H1, dirichlet_tags = "boundary")
 y0(x) = 0.0
 Ypde = TrialFESpace(Xpde, y0)
@@ -56,7 +56,7 @@ dΩ = Measure(trian, degree)
 yd(x) = -x[1]^2
 α = 1e-2
 function f(y, u)
-  ∫(0.5 * (yd - y) * (yd - y) + 0.5 * α * u * u) * dΩ
+  ∫(0.5 * 1e2 * (yd - y) * (yd - y) + 0.5 * α * u * u) * dΩ
 end
 
 ω = π - 1 / 8
@@ -125,7 +125,7 @@ stats_ipopt = ipopt(nlp, x0 = stats_trunk.solution, tol = 1e-5, print_level = 0)
 The problem was successfully solved, and we can extract the function evaluations from the stats.
 
 ````julia:ex10
-stats_ipopt.counters
+nlp.counters
 ````
 
 Reinitialize the counters before re-solving.
@@ -148,7 +148,7 @@ end
 The problem was successfully solved, and we can extract the function evaluations from the stats.
 
 ````julia:ex13
-stats_dci.counters
+nlp.counters
 ````
 
 We now compare the two solvers with respect to the time spent,

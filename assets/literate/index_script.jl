@@ -7,7 +7,7 @@ domain = (-1, 1, -1, 1)
 partition = (n, n)
 model = CartesianDiscreteModel(domain, partition)
 
-reffe = ReferenceFE(lagrangian, Float64, 2)
+reffe = ReferenceFE(lagrangian, Float64, 1)
 Xpde = TestFESpace(model, reffe; conformity = :H1, dirichlet_tags = "boundary")
 y0(x) = 0.0
 Ypde = TrialFESpace(Xpde, y0)
@@ -24,7 +24,7 @@ dΩ = Measure(trian, degree)
 yd(x) = -x[1]^2
 α = 1e-2
 function f(y, u)
-  ∫(0.5 * (yd - y) * (yd - y) + 0.5 * α * u * u) * dΩ
+  ∫(0.5 * 1e2 * (yd - y) * (yd - y) + 0.5 * α * u * u) * dΩ
 end
 
 ω = π - 1 / 8
@@ -55,7 +55,7 @@ using NLPModelsIpopt
 
 stats_ipopt = ipopt(nlp, x0 = stats_trunk.solution, tol = 1e-5, print_level = 0)
 
-stats_ipopt.counters
+nlp.counters
 
 reset!(nlp);
 
@@ -65,7 +65,7 @@ stats_dci = with_logger(NullLogger()) do
   dci(nlp, stats_trunk.solution, atol = 1e-5, rtol = 0.0)
 end
 
-stats_dci.counters
+nlp.counters
 
 stats_ipopt.elapsed_time, stats_dci.elapsed_time
 

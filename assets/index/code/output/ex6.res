@@ -1,1 +1,1 @@
-"Execution stats: first-order stationary"
+"Execution stats: maximum elapsed time"
