@@ -52,24 +52,19 @@ stats_trunk &#61; trunk&#40;nls&#41;</code></pre><pre><code class="plaintext cod
 <p>We will use the solution found to initialize our solvers.</p>
 <h2 id=solve_the_problem ><a href="#solve_the_problem" class=header-anchor >Solve the Problem</a></h2>
 <p>Finally, we are ready to solve the PDE-constrained optimization problem with a targeted tolerance of <code>10⁻⁵</code>. In the following, we will use both Ipopt and DCI on our problem. We refer to the tutorial <a href="https://jso-docs.github.io/solve-an-optimization-problem-with-ipopt/">How to solve a small optimization problem with Ipopt &#43; NLPModels</a> for more information on <code>NLPModelsIpopt</code>.</p>
-<pre><code class=language-julia >using NLPModelsIpopt</code></pre>
+<pre><code class=language-julia >using NLPModelsIpopt</code></pre><pre><code class="plaintext code-output">Failed to precompile NLPModelsIpopt [f4238b75-b362-5c4c-b852-0801c9a21d71] to /home/runner/.julia/compiled/v1.8/NLPModelsIpopt/jl_hoOH37.
+</code></pre>
 <p>Set <code>print_level &#61; 0</code> to avoid printing detailed iteration information.</p>
-<pre><code class=language-julia >stats_ipopt &#61; ipopt&#40;nlp, x0 &#61; stats_trunk.solution, tol &#61; 1e-5, print_level &#61; 0&#41;</code></pre><pre><code class="plaintext code-output">
-******************************************************************************
-This program contains Ipopt, a library for large-scale nonlinear optimization.
- Ipopt is released as open source code under the Eclipse Public License (EPL).
-         For more information visit https://github.com/coin-or/Ipopt
-******************************************************************************
-
-"Execution stats: first-order stationary"</code></pre>
+<pre><code class=language-julia >stats_ipopt &#61; ipopt&#40;nlp, x0 &#61; stats_trunk.solution, tol &#61; 1e-5, print_level &#61; 0&#41;</code></pre><pre><code class="plaintext code-output">UndefVarError: ipopt not defined
+</code></pre>
 <p>The problem was successfully solved, and we can extract the function evaluations from the stats.</p>
 <pre><code class=language-julia >nlp.counters</code></pre><pre><code class="plaintext code-output">  Counters:
-             obj: █⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 6                 grad: █⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 7                 cons: █⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 10    
+             obj: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 grad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 cons: █⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 4     
         cons_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0             cons_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 jcon: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
-           jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: █⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 7              jac_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0              jac_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
          jac_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jprod: ████████████████████ 529          jprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
        jprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jtprod: ████████████████████ 532         jtprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
-      jtprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 hess: █⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 5                hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+      jtprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 hess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
            jhess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
 </code></pre>
 <p>Reinitialize the counters before re-solving.</p>
@@ -91,10 +86,12 @@ end</code></pre><pre><code class="plaintext code-output">"Execution stats: first
            jhess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
 </code></pre>
 <p>We now compare the two solvers with respect to the time spent,</p>
-<pre><code class=language-julia >stats_ipopt.elapsed_time, stats_dci.elapsed_time</code></pre><pre><code class="plaintext code-output">(63.572, 18.96646809577942)</code></pre>
+<pre><code class=language-julia >stats_ipopt.elapsed_time, stats_dci.elapsed_time</code></pre><pre><code class="plaintext code-output">UndefVarError: stats_ipopt not defined
+</code></pre>
 <p>and also check objective value, feasibility, and dual feasibility of <code>ipopt</code> and <code>dci</code>.</p>
 <pre><code class=language-julia >&#40;stats_ipopt.objective, stats_ipopt.primal_feas, stats_ipopt.dual_feas&#41;,
-&#40;stats_dci.objective, stats_dci.primal_feas, stats_dci.dual_feas&#41;</code></pre><pre><code class="plaintext code-output">((16.04404374182583, 2.752247214854453e-16, 6.7547731833743775e-6), (16.040271666018707, 2.0203891847044188e-7, 8.485224021039463e-8))</code></pre>
+&#40;stats_dci.objective, stats_dci.primal_feas, stats_dci.dual_feas&#41;</code></pre><pre><code class="plaintext code-output">UndefVarError: stats_ipopt not defined
+</code></pre>
 <p>Overall <code>DCISolver</code> is doing great for solving large-scale optimization problems&#33; You can try increase the problem size by changing the discretization parameter <code>n</code>.</p>
 
 </div>
