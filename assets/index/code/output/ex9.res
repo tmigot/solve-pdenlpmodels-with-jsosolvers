@@ -1,1 +1,1 @@
-nothing
+"Execution stats: first-order stationary"
