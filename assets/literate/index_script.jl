@@ -71,4 +71,3 @@ stats_ipopt.elapsed_time, stats_dci.elapsed_time
 
 (stats_ipopt.objective, stats_ipopt.primal_feas, stats_ipopt.dual_feas),
 (stats_dci.objective, stats_dci.primal_feas, stats_dci.dual_feas)
-
