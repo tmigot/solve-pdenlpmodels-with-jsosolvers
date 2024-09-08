@@ -91,7 +91,7 @@ end</code></pre><pre><code class="plaintext code-output">"Execution stats: first
            jhess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
 </code></pre>
 <p>We now compare the two solvers with respect to the time spent,</p>
-<pre><code class=language-julia >stats_ipopt.elapsed_time, stats_dci.elapsed_time</code></pre><pre><code class="plaintext code-output">(76.849, 13.350481986999512)</code></pre>
+<pre><code class=language-julia >stats_ipopt.elapsed_time, stats_dci.elapsed_time</code></pre><pre><code class="plaintext code-output">(78.174, 13.475273132324219)</code></pre>
 <p>and also check objective value, feasibility, and dual feasibility of <code>ipopt</code> and <code>dci</code>.</p>
 <pre><code class=language-julia >&#40;stats_ipopt.objective, stats_ipopt.primal_feas, stats_ipopt.dual_feas&#41;,
 &#40;stats_dci.objective, stats_dci.primal_feas, stats_dci.dual_feas&#41;</code></pre><pre><code class="plaintext code-output">((16.044043741825817, 2.96637714392034e-16, 6.75477318337435e-6), (16.040271663836148, 1.991339089199499e-7, 8.485586217010938e-8))</code></pre>
